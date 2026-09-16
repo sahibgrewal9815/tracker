@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>PACE — Trainer Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0A; --bg-2:#111111; --bg-3:#161616; --bg-4:#1C1C1C;
+    --border:rgba(255,255,255,0.08); --border-hi:rgba(255,255,255,0.18);
+    --text:#E8E8E8; --text-dim:#666666; --text-mute:#333333;
+    --acc:#FF4500; --acc-2:#FF6B35; --acc-dim:rgba(255,69,0,0.15); --acc-glow:rgba(255,69,0,0.35);
+    --grn:#00FF88; --grn-dim:rgba(0,255,136,0.12);
+    --blu:#00BFFF; --yel:#FFD700; --rose:#FF4D6D;
+    --tech:'Share Tech Mono', monospace;
+    --body:'Rajdhani', sans-serif;
+    --radius:4px;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:var(--bg); color:var(--text); font-family:var(--body); min-height:100vh; }
+
+  /* Auth */
+  .auth-screen{ position:fixed; inset:0; z-index:100; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; }
+  .auth-screen.hidden{ display:none; }
+  .auth-logo{ font-family:var(--tech); font-size:36px; letter-spacing:0.22em; color:var(--text); margin-bottom:4px; }
+  .auth-logo span{ color:var(--acc); }
+  .auth-sub{ font-family:var(--tech); font-size:9px; letter-spacing:0.16em; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; }
+  .auth-bar{ width:36px; height:2px; background:var(--acc); box-shadow:0 0 10px var(--acc-glow); margin-bottom:36px; }
+  .auth-form{ width:100%; max-width:300px; display:flex; flex-direction:column; gap:10px; }
+  .auth-label{ font-family:var(--tech); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim); margin-bottom:3px; display:block; }
+  .auth-input{ width:100%; background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius); padding:13px 14px; color:var(--text); font-family:var(--tech); font-size:14px; }
+  .auth-input:focus{ outline:none; border-color:var(--acc); }
+  .auth-btn{ background:var(--acc); color:#000; border:none; border-radius:var(--radius); padding:13px; font-family:var(--tech); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; font-weight:700; cursor:pointer; box-shadow:0 0 18px var(--acc-glow); }
+  .auth-error{ font-family:var(--tech); font-size:10px; color:var(--rose); text-align:center; min-height:14px; }
+
+  /* Dashboard */
+  .dashboard{ display:none; max-width:960px; margin:0 auto; padding:20px 16px 60px; }
+  .dashboard.visible{ display:block; }
+
+  .dash-header{ display:flex; align-items:center; justify-content:space-between; padding-bottom:14px; border-bottom:1px solid var(--border); margin-bottom:24px; }
+  .dash-logo{ font-family:var(--tech); font-size:20px; letter-spacing:0.18em; }
+  .dash-logo span{ color:var(--acc); }
+  .dash-trainer-name{ font-family:var(--tech); font-size:10px; color:var(--acc); letter-spacing:0.10em; margin-top:2px; }
+  .dash-logout{ background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:var(--radius); padding:6px 12px; font-family:var(--tech); font-size:9px; letter-spacing:0.08em; cursor:pointer; }
+  .dash-logout:hover{ border-color:var(--rose); color:var(--rose); }
+
+  /* Stats */
+  .stats-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:24px; }
+  @media(max-width:600px){ .stats-row{ grid-template-columns:repeat(2,1fr); } }
+  .stat-card{ background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius); padding:14px; position:relative; overflow:hidden; }
+  .stat-card::after{ content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--acc),transparent); }
+  .stat-card .sv{ font-family:var(--tech); font-size:26px; color:var(--text); }
+  .stat-card .sl{ font-family:var(--tech); font-size:9px; letter-spacing:0.10em; color:var(--text-dim); text-transform:uppercase; margin-top:3px; }
+
+  /* Section */
+  .section-title{ font-family:var(--tech); font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--acc); margin-bottom:12px; }
+
+  /* Client detail */
+  .athlete-detail{ background:var(--bg-2); border:1px solid var(--acc); border-radius:var(--radius); padding:20px; margin-bottom:24px; display:none; }
+  .athlete-detail.visible{ display:block; }
+  .detail-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .detail-name{ font-family:var(--tech); font-size:18px; letter-spacing:0.08em; }
+  .detail-meta{ font-family:var(--tech); font-size:9px; color:var(--text-dim); margin-top:2px; }
+  .detail-close{ background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:var(--radius); padding:5px 10px; font-family:var(--tech); font-size:9px; cursor:pointer; }
+  .detail-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+  @media(max-width:500px){ .detail-stats{ grid-template-columns:repeat(2,1fr); } }
+  .ds-card{ background:var(--bg-3); border-radius:var(--radius); padding:12px; text-align:center; }
+  .ds-card .v{ font-family:var(--tech); font-size:18px; color:var(--text); }
+  .ds-card .l{ font-family:var(--tech); font-size:8px; color:var(--text-dim); letter-spacing:0.08em; text-transform:uppercase; margin-top:2px; }
+  .log-table{ width:100%; border-collapse:collapse; }
+  .log-table th{ font-family:var(--tech); font-size:9px; letter-spacing:0.10em; text-transform:uppercase; color:var(--text-dim); padding:6px 8px; border-bottom:1px solid var(--border); text-align:left; }
+  .log-table td{ font-family:var(--tech); font-size:11px; padding:8px; border-bottom:1px solid var(--border); }
+  .log-table tr:last-child td{ border-bottom:none; }
+  .bar-cell{ display:flex; align-items:center; gap:6px; }
+  .mini-bar{ flex:1; height:4px; background:var(--bg-3); border-radius:2px; overflow:hidden; }
+  .mini-fill{ height:100%; background:var(--acc); border-radius:2px; }
+
+  /* Athlete grid */
+  .athlete-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; margin-bottom:32px; }
+  .athlete-card{ background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius); padding:15px; cursor:pointer; transition:border-color 0.15s; position:relative; overflow:hidden; }
+  .athlete-card:hover{ border-color:var(--acc); }
+  .athlete-card.selected{ border-color:var(--acc); background:var(--acc-dim); }
+  .athlete-card::before{ content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.008) 2px,rgba(255,255,255,0.008) 3px); pointer-events:none; }
+  .ac-top{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+  .ac-name{ font-family:var(--tech); font-size:15px; letter-spacing:0.06em; }
+  .ac-goal{ font-family:var(--tech); font-size:9px; color:var(--text-dim); margin-top:2px; }
+  .ac-badge{ font-family:var(--tech); font-size:8px; letter-spacing:0.06em; padding:3px 6px; border-radius:2px; }
+  .ac-badge.active{ background:var(--grn-dim); color:var(--grn); border:1px solid var(--grn); }
+  .ac-badge.rest{ background:var(--bg-3); color:var(--text-mute); border:1px solid var(--border); }
+  .ac-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:10px; }
+  .ac-stat{ background:var(--bg-3); border-radius:2px; padding:6px; text-align:center; }
+  .ac-stat .v{ font-family:var(--tech); font-size:14px; }
+  .ac-stat .l{ font-family:var(--tech); font-size:8px; color:var(--text-dim); letter-spacing:0.06em; text-transform:uppercase; margin-top:1px; }
+  .ac-progress-label{ font-family:var(--tech); font-size:8px; color:var(--text-dim); display:flex; justify-content:space-between; margin-bottom:3px; }
+  .ac-progress-bar{ height:3px; background:var(--bg-3); border-radius:1px; overflow:hidden; }
+  .ac-progress-fill{ height:100%; background:linear-gradient(90deg,var(--acc),var(--acc-2)); border-radius:1px; }
+
+  /* Add athlete form */
+  .add-btn{ background:var(--acc-dim); border:1px solid var(--acc); color:var(--acc); border-radius:var(--radius); padding:10px 16px; font-family:var(--tech); font-size:10px; letter-spacing:0.10em; text-transform:uppercase; cursor:pointer; margin-bottom:14px; }
+  .add-form{ background:var(--bg-2); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; display:none; }
+  .add-form.visible{ display:block; }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+  @media(max-width:500px){ .form-grid{ grid-template-columns:1fr; } }
+  .form-field label{ font-family:var(--tech); font-size:9px; letter-spacing:0.10em; color:var(--text-dim); text-transform:uppercase; display:block; margin-bottom:4px; }
+  .form-field input{ width:100%; background:var(--bg-3); border:1px solid var(--border); border-radius:var(--radius); padding:9px 10px; color:var(--text); font-family:var(--tech); font-size:13px; }
+  .form-field input:focus{ outline:none; border-color:var(--acc); }
+  .form-btns{ display:flex; gap:8px; }
+  .btn-save{ background:var(--acc); color:#000; border:none; border-radius:var(--radius); padding:10px 20px; font-family:var(--tech); font-size:10px; letter-spacing:0.10em; text-transform:uppercase; cursor:pointer; }
+  .btn-cancel{ background:none; border:1px solid var(--border); color:var(--text-dim); border-radius:var(--radius); padding:10px 16px; font-family:var(--tech); font-size:10px; cursor:pointer; }
+  .form-msg{ font-family:var(--tech); font-size:10px; margin-top:8px; min-height:14px; }
+  .form-msg.err{ color:var(--rose); }
+  .form-msg.ok{ color:var(--grn); }
+
+  .loading{ text-align:center; padding:40px; font-family:var(--tech); font-size:11px; color:var(--text-dim); letter-spacing:0.10em; }
+  .empty{ text-align:center; padding:40px; font-family:var(--tech); font-size:11px; color:var(--text-mute); border:1px dashed var(--border); border-radius:var(--radius); }
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-logo">P<span>A</span>CE</div>
+  <div class="auth-sub">Trainer Dashboard</div>
+  <div class="auth-bar"></div>
+  <div class="auth-form">
+    <div>
+      <label class="auth-label">Username</label>
+      <input class="auth-input" id="authUser" type="text" placeholder="Your trainer username" autocapitalize="none">
+    </div>
+    <div>
+      <label class="auth-label">Password</label>
+      <input class="auth-input" id="authPass" type="password" placeholder="Your password">
+    </div>
+    <div class="auth-error" id="authError"></div>
+    <button class="auth-btn" id="authBtn">ACCESS DASHBOARD</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+
+  <div class="dash-header">
+    <div>
+      <div class="dash-logo">P<span>A</span>CE</div>
+      <div class="dash-trainer-name" id="dashTrainerName">—</div>
+    </div>
+    <button class="dash-logout" id="dashLogout">Logout</button>
+  </div>
+
+  <!-- Overview stats -->
+  <div class="stats-row">
+    <div class="stat-card"><div class="sv" id="statTotal">—</div><div class="sl">My Athletes</div></div>
+    <div class="stat-card"><div class="sv" id="statActive">—</div><div class="sl">Active Today</div></div>
+    <div class="stat-card"><div class="sv" id="statAvgStreak">—</div><div class="sl">Avg Streak</div></div>
+    <div class="stat-card"><div class="sv" id="statAvgHabits">—</div><div class="sl">Avg Habits</div></div>
+  </div>
+
+  <!-- Athlete detail -->
+  <div class="athlete-detail" id="athleteDetail">
+    <div class="detail-header">
+      <div>
+        <div class="detail-name" id="detailName">—</div>
+        <div class="detail-meta" id="detailMeta">—</div>
+      </div>
+      <button class="detail-close" id="detailClose">✕ Close</button>
+    </div>
+    <div class="detail-stats">
+      <div class="ds-card"><div class="v" id="detailStreak" style="color:var(--acc)">—</div><div class="l">Streak</div></div>
+      <div class="ds-card"><div class="v" id="detailXP" style="color:var(--yel)">—</div><div class="l">Total XP</div></div>
+      <div class="ds-card"><div class="v" id="detailWeight" style="color:var(--grn)">—</div><div class="l">Last Weight</div></div>
+      <div class="ds-card"><div class="v" id="detailGoal" style="color:var(--blu)">—</div><div class="l">Goal Weight</div></div>
+    </div>
+    <!-- Upload Plan -->
+    <div style="margin:16px 0; padding:14px; background:var(--bg-3); border-radius:var(--radius); border:1px solid var(--border);">
+      <div class="section-title" style="margin-bottom:8px;">📋 Athlete Plan</div>
+      <div style="font-family:var(--tech);font-size:10px;color:var(--text-dim);margin-bottom:10px;line-height:1.6;">
+        Paste the JSON plan generated by Claude below. This will set this athlete's personal workout, diet and habits.
+      </div>
+      <textarea id="planJsonInput" style="width:100%;height:100px;background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:10px;color:var(--text);font-family:var(--tech);font-size:11px;resize:vertical;" placeholder='Paste athlete plan JSON here...'></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+        <button onclick="uploadPlan()" style="background:var(--acc);color:#000;border:none;border-radius:var(--radius);padding:9px 16px;font-family:var(--tech);font-size:10px;letter-spacing:0.10em;text-transform:uppercase;cursor:pointer;">Upload Plan</button>
+        <span id="planMsg" style="font-family:var(--tech);font-size:10px;"></span>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:4px;">Last 7 Days Activity</div>
+    <table class="log-table">
+      <thead><tr><th>Date</th><th>Habits</th><th>Water</th><th>XP</th><th>Weight</th></tr></thead>
+      <tbody id="detailRows"><tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-mute)">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+  <!-- Athletes -->
+  <div class="section-title">My Athletes</div>
+  <button class="add-btn" id="addAthleteBtn">+ Add New Athlete</button>
+  <div class="add-form" id="addForm">
+    <div class="form-grid">
+      <div class="form-field"><label>Full Name</label><input id="f_name" placeholder="e.g. Rajveer Singh"></div>
+      <div class="form-field"><label>Username</label><input id="f_username" placeholder="e.g. rajveer01" autocapitalize="none"></div>
+      <div class="form-field"><label>Password</label><input id="f_password" placeholder="e.g. Pace@2026"></div>
+      <div class="form-field"><label>Goal</label><input id="f_goal" placeholder="e.g. Fat loss, lean muscle"></div>
+      <div class="form-field"><label>Start Weight (kg)</label><input id="f_sw" type="number" value="60"></div>
+      <div class="form-field"><label>Goal Weight (kg)</label><input id="f_gw" type="number" value="65"></div>
+    </div>
+    <div class="form-btns">
+      <button class="btn-save" id="saveAthleteBtn">Create Athlete</button>
+      <button class="btn-cancel" id="cancelAthleteBtn">Cancel</button>
+    </div>
+    <div class="form-msg" id="formMsg"></div>
+  </div>
+
+  <div class="athlete-grid" id="athleteGrid">
+    <div class="loading">Loading athletes...</div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const SB_URL = 'https://ggjmnpjtzybislnimugl.supabase.co';
+  const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdnam1ucGp0enliaXNsbmltdWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwMjExMDAsImV4cCI6MjEwNDU5NzEwMH0.vNQF8AKnqsrqbcJWV0mf-W7obiZpz_hohrz-qkDYDBY';
+
+  const H = { 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY, 'Content-Type':'application/json' };
+
+  async function get(table, q=''){ 
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?${q}`, {headers:H}); 
+    return r.json(); 
+  }
+  async function post(table, body){ 
+    const r = await fetch(`${SB_URL}/rest/v1/${table}`, {method:'POST', headers:{...H,'Prefer':'return=representation'}, body:JSON.stringify(body)}); 
+    return r.json(); 
+  }
+  async function patch(table, filter, body){
+    const r = await fetch(`${SB_URL}/rest/v1/${table}?${filter}`, {method:'PATCH', headers:{...H,'Prefer':'return=representation'}, body:JSON.stringify(body)});
+    return r.json();
+  }
+
+  // ── Upload athlete plan ─────────────────────────────────────────────
+  window.deleteAthlete = async function(id, name){
+    if(!confirm(`Delete athlete "${name}"? This cannot be undone.`)) return;
+    try{
+      // delete their logs first, then the athlete
+      await fetch(`${SB_URL}/rest/v1/daily_logs?athlete_id=eq.${id}`, {method:'DELETE', headers:H});
+      await fetch(`${SB_URL}/rest/v1/athletes?id=eq.${id}`, {method:'DELETE', headers:H});
+      if(selectedAthleteId===id){
+        selectedAthleteId=null;
+        document.getElementById('athleteDetail').classList.remove('visible');
+      }
+      await loadData();
+    }catch(e){ alert('Delete failed. Try again.'); }
+  };
+
+  window.uploadPlan = async function(){
+    const msg = document.getElementById('planMsg');
+    const raw = document.getElementById('planJsonInput').value.trim();
+    if(!raw){ msg.style.color='var(--rose)'; msg.textContent='Paste a plan JSON first'; return; }
+    if(!selectedAthleteId){ msg.style.color='var(--rose)'; msg.textContent='No athlete selected'; return; }
+    let plan;
+    try{ plan = JSON.parse(raw); }
+    catch(e){ msg.style.color='var(--rose)'; msg.textContent='Invalid JSON — check the format'; return; }
+
+    msg.style.color='var(--text-dim)'; msg.textContent='Uploading...';
+
+    try{
+      await patch('athletes', `id=eq.${selectedAthleteId}`, {
+        workout_plan: plan.workout || {},
+        diet_plan: plan.diet || {},
+        habit_list: plan.habits || [],
+        // also update goal and weights if provided
+        ...(plan.goal ? {goal: plan.goal} : {}),
+        ...(plan.start_weight ? {start_weight: plan.start_weight} : {}),
+        ...(plan.goal_weight ? {goal_weight: plan.goal_weight} : {}),
+      });
+      msg.style.color='var(--grn)'; msg.textContent='✓ Plan uploaded! Athlete will see it on next login.';
+      document.getElementById('planJsonInput').value='';
+      await loadData();
+    }catch(e){
+      msg.style.color='var(--rose)'; msg.textContent='Upload failed. Try again.';
+    }
+  };
+
+  let currentTrainer = null;
+  let athletes = [];
+  let todayLogs = [];
+  let selectedAthleteId = null;
+
+  const today = new Date().toISOString().slice(0,10);
+
+  // ── Auth ────────────────────────────────────────
+  document.getElementById('authBtn').addEventListener('click', doAuth);
+  document.getElementById('authPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doAuth(); });
+  document.getElementById('authUser').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('authPass').focus(); });
+  document.getElementById('dashLogout').addEventListener('click', ()=>{ sessionStorage.clear(); location.reload(); });
+
+  async function doAuth(){
+    const username = document.getElementById('authUser').value.trim().toLowerCase();
+    const password = document.getElementById('authPass').value.trim();
+    const errEl = document.getElementById('authError');
+    const btn = document.getElementById('authBtn');
+    if(!username||!password){ errEl.textContent='Enter username and password'; return; }
+    btn.textContent='CHECKING...'; btn.disabled=true; errEl.textContent='';
+    try{
+      const rows = await get('trainers', `username=eq.${encodeURIComponent(username)}&password=eq.${encodeURIComponent(password)}&select=*`);
+      if(!rows||!rows.length){ errEl.textContent='Wrong username or password'; btn.textContent='ACCESS DASHBOARD'; btn.disabled=false; return; }
+      currentTrainer = rows[0];
+      sessionStorage.setItem('pace_trainer', JSON.stringify(currentTrainer));
+      showDashboard();
+    }catch(e){ errEl.textContent='Connection error. Try again.'; btn.textContent='ACCESS DASHBOARD'; btn.disabled=false; }
+  }
+
+  function showDashboard(){
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('visible');
+    document.getElementById('dashTrainerName').textContent = 'Trainer: ' + currentTrainer.name.toUpperCase();
+    loadData();
+  }
+
+  // ── Load data ───────────────────────────────────
+  async function loadData(){
+    athletes = await get('athletes', `trainer_id=eq.${currentTrainer.id}&select=*&order=created_at.desc`) || [];
+    if(athletes.length){
+      const ids = athletes.map(a=>`"${a.id}"`).join(',');
+      todayLogs = await get('daily_logs', `athlete_id=in.(${ids})&date=eq.${today}&select=*`) || [];
+    } else { todayLogs = []; }
+    renderStats();
+    renderGrid();
+  }
+
+  function getLog(aid){ return todayLogs.find(l=>l.athlete_id===aid)||null; }
+
+  function habitsComp(log){
+    if(!log?.habits) return 0;
+    const h = typeof log.habits==='string'?JSON.parse(log.habits):log.habits;
+    const v = Object.values(h);
+    return v.length ? Math.round(v.filter(Boolean).length/v.length*100) : 0;
+  }
+
+  function renderStats(){
+    document.getElementById('statTotal').textContent = athletes.length;
+    document.getElementById('statActive').textContent = todayLogs.filter(l=>l.xp>0).length;
+    const streaks = todayLogs.map(l=>l.streak||0);
+    document.getElementById('statAvgStreak').textContent = (streaks.length ? Math.round(streaks.reduce((a,b)=>a+b,0)/streaks.length) : 0) + 'd';
+    const comps = athletes.map(a=>habitsComp(getLog(a.id)));
+    document.getElementById('statAvgHabits').textContent = (comps.length ? Math.round(comps.reduce((a,b)=>a+b,0)/comps.length) : 0) + '%';
+  }
+
+  function renderGrid(){
+    const grid = document.getElementById('athleteGrid');
+    if(!athletes.length){ grid.innerHTML='<div class="empty">No athletes yet. Add your first athlete above.</div>'; return; }
+    grid.innerHTML = athletes.map(a=>{
+      const log = getLog(a.id);
+      const comp = habitsComp(log);
+      const streak = log?.streak||0;
+      const water = log?.water||0;
+      const isActive = !!log&&(log.xp||0)>0;
+      const sw = a.start_weight||60, gw = a.goal_weight||65, cw = log?.weight||sw;
+      const wpct = Math.round(Math.max(0,Math.min(100,(cw-sw)/(gw-sw)*100)));
+      return `<div class="athlete-card ${selectedAthleteId===a.id?'selected':''}" onclick="selectAthlete('${a.id}')">
+        <div class="ac-top">
+          <div><div class="ac-name">${a.name.toUpperCase()}</div><div class="ac-goal">${a.goal||'No goal set'}</div></div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+            <div class="ac-badge ${isActive?'active':'rest'}">${isActive?'ACTIVE':'REST'}</div>
+            <button onclick="event.stopPropagation();deleteAthlete('${a.id}','${a.name}')" style="background:none;border:1px solid rgba(255,77,109,0.4);color:var(--rose);border-radius:2px;padding:2px 7px;font-family:var(--tech);font-size:8px;letter-spacing:0.06em;cursor:pointer;">DELETE</button>
+          </div>
+        </div>
+        <div class="ac-stats">
+          <div class="ac-stat"><div class="v" style="color:var(--acc)">${streak}d</div><div class="l">Streak</div></div>
+          <div class="ac-stat"><div class="v" style="color:var(--blu)">${water}</div><div class="l">Water</div></div>
+          <div class="ac-stat"><div class="v">${comp}%</div><div class="l">Habits</div></div>
+        </div>
+        <div class="ac-progress-label"><span>Weight</span><span>${cw}kg → ${gw}kg</span></div>
+        <div class="ac-progress-bar"><div class="ac-progress-fill" style="width:${wpct}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Athlete detail ──────────────────────────────
+  window.selectAthlete = async function(id){
+    selectedAthleteId = id;
+    renderGrid();
+    const a = athletes.find(x=>x.id===id);
+    if(!a) return;
+    const detail = document.getElementById('athleteDetail');
+    detail.classList.add('visible');
+    detail.scrollIntoView({behavior:'smooth',block:'start'});
+    document.getElementById('detailName').textContent = a.name.toUpperCase();
+    document.getElementById('detailMeta').textContent = `@${a.username} · ${a.goal||'—'} · ${a.start_weight}kg → ${a.goal_weight}kg`;
+    document.getElementById('detailGoal').textContent = (a.goal_weight||'—')+'kg';
+
+    const logs = await get('daily_logs', `athlete_id=eq.${id}&order=date.desc&limit=7&select=*`) || [];
+    const latest = logs[0];
+    document.getElementById('detailStreak').textContent = latest ? (latest.streak||0)+'d' : '—';
+    document.getElementById('detailXP').textContent = latest ? (latest.xp||0) : '—';
+    document.getElementById('detailWeight').textContent = latest?.weight ? latest.weight+'kg' : '—';
+
+    const tbody = document.getElementById('detailRows');
+    if(!logs.length){ tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-mute);font-family:var(--tech);font-size:10px;">No activity yet</td></tr>'; return; }
+    tbody.innerHTML = logs.map(l=>{
+      const c = habitsComp(l);
+      return `<tr>
+        <td>${l.date}</td>
+        <td><div class="bar-cell"><div class="mini-bar"><div class="mini-fill" style="width:${c}%"></div></div><span style="color:var(--text-dim);font-size:9px">${c}%</span></div></td>
+        <td style="color:var(--blu)">${l.water||0}gl</td>
+        <td style="color:var(--yel)">+${l.xp||0}</td>
+        <td style="color:var(--grn)">${l.weight||'—'}</td>
+      </tr>`;
+    }).join('');
+  };
+
+  document.getElementById('detailClose').addEventListener('click', ()=>{
+    selectedAthleteId=null;
+    document.getElementById('athleteDetail').classList.remove('visible');
+    renderGrid();
+  });
+
+  // ── Add athlete ─────────────────────────────────
+  document.getElementById('addAthleteBtn').addEventListener('click', ()=>{ document.getElementById('addForm').classList.toggle('visible'); });
+  document.getElementById('cancelAthleteBtn').addEventListener('click', ()=>{ document.getElementById('addForm').classList.remove('visible'); });
+
+  document.getElementById('saveAthleteBtn').addEventListener('click', async ()=>{
+    const name = document.getElementById('f_name').value.trim();
+    const username = document.getElementById('f_username').value.trim().toLowerCase();
+    const password = document.getElementById('f_password').value.trim();
+    const goal = document.getElementById('f_goal').value.trim();
+    const sw = parseFloat(document.getElementById('f_sw').value)||60;
+    const gw = parseFloat(document.getElementById('f_gw').value)||65;
+    const msg = document.getElementById('formMsg');
+
+    if(!name||!username||!password){ msg.className='form-msg err'; msg.textContent='Name, username and password are required'; return; }
+    msg.textContent=''; document.getElementById('saveAthleteBtn').textContent='Creating...';
+
+    const res = await post('athletes', { name, username, password, trainer_id:currentTrainer.id, goal, start_weight:sw, goal_weight:gw });
+    document.getElementById('saveAthleteBtn').textContent='Create Athlete';
+
+    if(res&&res[0]?.id){
+      msg.className='form-msg ok'; msg.textContent='✓ Athlete created successfully!';
+      ['f_name','f_username','f_password','f_goal'].forEach(id=>document.getElementById(id).value='');
+      setTimeout(()=>{ document.getElementById('addForm').classList.remove('visible'); msg.textContent=''; }, 1500);
+      await loadData();
+    } else {
+      msg.className='form-msg err'; msg.textContent = res?.message||'Error. Username may already exist.';
+    }
+  });
+
+  // ── Boot ────────────────────────────────────────
+  const saved = sessionStorage.getItem('pace_trainer');
+  if(saved){ currentTrainer=JSON.parse(saved); showDashboard(); }
+  setInterval(()=>{ if(currentTrainer) loadData(); }, 60000);
+})();
+</script>
+</body>
+</html>
