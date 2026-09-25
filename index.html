@@ -908,283 +908,38 @@
   ];
 
   // Weekly workout plan — 0=Sunday ... 6=Saturday (matches JS Date.getDay())
-  const WEEKLY_ROUTINE = {
-    1: { // Monday
-      title: 'Chest + Triceps + Core + Fat Burn', duration: '60 mins', calories: '~430 kcal', rest: false,
-      sections: [
-        { name:'Warm Up', exercises:[
-          {name:'Jumping Jacks', detail:'50 reps'},
-          {name:'Arm Circles', detail:'20 reps'},
-          {name:'Chest Stretch', detail:'30 sec each side'},
-        ]},
-        { name:'Chest + Triceps', exercises:[
-          {name:'Push Ups', detail:'4 x 15'},
-          {name:'DB Floor Press', detail:'4 x 15'},
-          {name:'DB Flyes', detail:'3 x 15'},
-          {name:'Incline Push Ups', detail:'3 x 12'},
-          {name:'Overhead Tricep Extension', detail:'3 x 15'},
-          {name:'Tricep Kickback', detail:'3 x 15'},
-          {name:'Diamond Push Ups', detail:'3 x 12'},
-        ]},
-        { name:'Fat Burn', exercises:[
-          {name:'Burpees', detail:'4 x 10'},
-          {name:'Jump Squats', detail:'3 x 15'},
-          {name:'Mountain Climbers', detail:'4 x 30 sec'},
-          {name:'High Knees', detail:'3 x 30 sec'},
-        ]},
-        { name:'Core', exercises:[
-          {name:'Plank Hold', detail:'3 x 1 min'},
-          {name:'Side Plank Left', detail:'3 x 30 sec'},
-          {name:'Side Plank Right', detail:'3 x 30 sec'},
-          {name:'Bicycle Crunches', detail:'3 x 20'},
-          {name:'Reverse Crunches', detail:'3 x 15'},
-          {name:'Russian Twists', detail:'3 x 20'},
-        ]},
-        { name:'Stretching', exercises:[
-          {name:'Neck Rolls', detail:'5 each side'},
-          {name:'Chest Opener', detail:'30 sec x 3'},
-          {name:'Wall Angels', detail:'3 x 10'},
-          {name:'Cat Cow', detail:'10 reps'},
-          {name:"Child's Pose", detail:'1 min'},
-          {name:'Deep Breathing', detail:'1 min'},
-        ]},
-      ]
-    },
-    2: { // Tuesday
-      title: 'Back + Biceps + Core + Fat Burn', duration: '60 mins', calories: '~440 kcal', rest: false,
-      sections: [
-        { name:'Warm Up', exercises:[
-          {name:'Jumping Jacks', detail:'50 reps'},
-          {name:'Arm Circles (fwd + back)', detail:'20 reps'},
-          {name:'Shoulder Rotations', detail:'20 reps'},
-        ]},
-        { name:'Back + Biceps', exercises:[
-          {name:'DB Bent Over Row', detail:'4 x 15'},
-          {name:'Single Arm DB Row', detail:'3 x 15 each'},
-          {name:'DB Deadlift', detail:'3 x 15'},
-          {name:'Reverse Flyes', detail:'3 x 15'},
-          {name:'DB Bicep Curl', detail:'3 x 15'},
-          {name:'Hammer Curl', detail:'3 x 15'},
-          {name:'Concentration Curl', detail:'3 x 12'},
-        ]},
-        { name:'Fat Burn', exercises:[
-          {name:'Burpees', detail:'4 x 10'},
-          {name:'Jump Squats', detail:'3 x 15'},
-          {name:'High Knees', detail:'4 x 30 sec'},
-          {name:'Jumping Jacks', detail:'3 x 30 sec'},
-        ]},
-        { name:'Core', exercises:[
-          {name:'Plank Hold', detail:'3 x 1 min'},
-          {name:'Side Plank Left', detail:'3 x 30 sec'},
-          {name:'Side Plank Right', detail:'3 x 30 sec'},
-          {name:'Bicycle Crunches', detail:'3 x 20'},
-          {name:'Reverse Crunches', detail:'3 x 15'},
-          {name:'Russian Twists', detail:'3 x 20'},
-        ]},
-        { name:'Stretching', exercises:[
-          {name:'Neck Rolls', detail:''},
-          {name:'Shoulder Stretch', detail:''},
-          {name:'Wall Angels', detail:''},
-          {name:'Cat Cow', detail:''},
-          {name:"Child's Pose", detail:''},
-          {name:'Deep Breathing', detail:''},
-        ]},
-      ]
-    },
-    3: { // Wednesday
-      title: 'Cardio + Core + Fat Burn', duration: '60 mins', calories: '~370 kcal', rest: false,
-      sections: [
-        { name:'Warm Up', exercises:[
-          {name:'Jumping Jacks', detail:'50 reps'},
-          {name:'Hip Rotations', detail:'20 reps'},
-          {name:'Light Jogging on Spot', detail:'1 min'},
-        ]},
-        { name:'Cardio Fat Burn', exercises:[
-          {name:'Burpees', detail:'4 x 10'},
-          {name:'Jump Rope / Jumping Jacks', detail:'4 x 1 min'},
-          {name:'High Knees', detail:'4 x 30 sec'},
-          {name:'Mountain Climbers', detail:'4 x 30 sec'},
-          {name:'Jump Squats', detail:'3 x 15'},
-        ]},
-        { name:'Core + Love Handles', exercises:[
-          {name:'Plank Hold', detail:'4 x 1 min'},
-          {name:'Side Plank Left', detail:'3 x 45 sec'},
-          {name:'Side Plank Right', detail:'3 x 45 sec'},
-          {name:'Hip Dips Left', detail:'3 x 15'},
-          {name:'Hip Dips Right', detail:'3 x 15'},
-          {name:'Bicycle Crunches', detail:'4 x 20'},
-          {name:'Reverse Crunches', detail:'4 x 15'},
-          {name:'Russian Twists', detail:'4 x 20'},
-          {name:'Leg Raises', detail:'3 x 15'},
-        ]},
-        { name:'Cool Down', exercises:[
-          {name:"Child's Pose", detail:''},
-          {name:'Back Stretch', detail:''},
-          {name:'Deep Breathing', detail:''},
-        ]},
-      ]
-    },
-    4: { // Thursday — Rest
-      title: 'Rest Day', duration: '~25 mins light', calories: '', rest: true,
-      sections: [
-        { name:'Light Stretching', exercises:[
-          {name:'Neck Rolls', detail:'5 each side'},
-          {name:'Chest Opener', detail:'30 sec x 3'},
-          {name:'Shoulder Stretch', detail:'30 sec each'},
-          {name:'Wall Angels', detail:'3 x 10'},
-          {name:'Cat Cow', detail:'10 reps'},
-          {name:"Child's Pose", detail:'1 min'},
-          {name:'Deep Breathing', detail:'1 min'},
-        ]},
-        { name:'Daily Core', exercises:[
-          {name:'Plank Hold', detail:'1 x 1 min'},
-          {name:'Side Plank Left', detail:'1 x 30 sec'},
-          {name:'Side Plank Right', detail:'1 x 30 sec'},
-          {name:'Bicycle Crunches', detail:'2 x 20'},
-          {name:'Reverse Crunches', detail:'2 x 15'},
-          {name:'Russian Twists', detail:'1 x 20'},
-          {name:'Hip Dips Left', detail:'1 x 15'},
-          {name:'Hip Dips Right', detail:'1 x 15'},
-        ]},
-        { name:'Optional Walk', exercises:[
-          {name:'Easy Walk for Recovery', detail:'20–30 min'},
-        ]},
-      ]
-    },
-    5: { // Friday
-      title: 'Shoulders + Core + Fat Burn', duration: '60 mins', calories: '~430 kcal', rest: false,
-      sections: [
-        { name:'Warm Up', exercises:[
-          {name:'Jumping Jacks', detail:'50 reps'},
-          {name:'Arm Circles', detail:'20 reps'},
-          {name:'Shoulder Rotations', detail:'20 reps'},
-          {name:'Neck Rotations', detail:'10 reps'},
-        ]},
-        { name:'Shoulders', exercises:[
-          {name:'DB Shoulder Press', detail:'4 x 15'},
-          {name:'Lateral Raises', detail:'4 x 20'},
-          {name:'Front Raises', detail:'3 x 15'},
-          {name:'Bent Over Reverse Flyes', detail:'4 x 15'},
-          {name:'Arnold Press', detail:'3 x 12'},
-          {name:'Shrugs', detail:'3 x 20'},
-        ]},
-        { name:'Fat Burn', exercises:[
-          {name:'Burpees', detail:'4 x 10'},
-          {name:'Jump Squats', detail:'3 x 15'},
-          {name:'High Knees', detail:'4 x 30 sec'},
-          {name:'Mountain Climbers', detail:'3 x 30 sec'},
-        ]},
-        { name:'Core', exercises:[
-          {name:'Plank Hold', detail:'3 x 1 min'},
-          {name:'Side Plank Left', detail:'3 x 30 sec'},
-          {name:'Side Plank Right', detail:'3 x 30 sec'},
-          {name:'Bicycle Crunches', detail:'3 x 20'},
-          {name:'Reverse Crunches', detail:'3 x 15'},
-          {name:'Russian Twists', detail:'3 x 20'},
-        ]},
-        { name:'Stretching', exercises:[
-          {name:'Shoulder Cross Stretch', detail:''},
-          {name:'Chest Opener', detail:''},
-          {name:"Child's Pose", detail:''},
-          {name:'Deep Breathing', detail:''},
-        ]},
-      ]
-    },
-    6: { // Saturday
-      title: 'Full Body Circuit + Core + Fat Burn', duration: '60 mins', calories: '~380 kcal', rest: false,
-      sections: [
-        { name:'Warm Up', exercises:[
-          {name:'Jumping Jacks', detail:'50 reps'},
-          {name:'Arm Circles', detail:'20 reps'},
-          {name:'Hip Rotations', detail:'20 reps'},
-          {name:'Light Jogging on Spot', detail:'1 min'},
-        ]},
-        { name:'Full Body Circuit', exercises:[
-          {name:'Burpees', detail:'4 x 10'},
-          {name:'DB Squat', detail:'4 x 15'},
-          {name:'Push Ups', detail:'4 x 15'},
-          {name:'DB Bent Over Row', detail:'4 x 15'},
-          {name:'Jump Squats', detail:'3 x 15'},
-          {name:'DB Shoulder Press', detail:'3 x 15'},
-          {name:'Mountain Climbers', detail:'4 x 30 sec'},
-          {name:'DB Lunges', detail:'3 x 12 each'},
-          {name:'High Knees', detail:'3 x 30 sec'},
-        ]},
-        { name:'Core + Love Handles', exercises:[
-          {name:'Plank Hold', detail:'3 x 1 min'},
-          {name:'Side Plank Left', detail:'3 x 30 sec'},
-          {name:'Side Plank Right', detail:'3 x 30 sec'},
-          {name:'Hip Dips Left', detail:'3 x 15'},
-          {name:'Hip Dips Right', detail:'3 x 15'},
-          {name:'Bicycle Crunches', detail:'3 x 20'},
-          {name:'Reverse Crunches', detail:'3 x 15'},
-          {name:'Russian Twists', detail:'3 x 20'},
-        ]},
-        { name:'Cool Down', exercises:[
-          {name:'Full Body Stretch', detail:''},
-          {name:"Child's Pose", detail:''},
-          {name:'Deep Breathing', detail:''},
-        ]},
-      ]
-    },
-    0: { // Sunday — Rest
-      title: 'Rest Day', duration: '~25 mins light', calories: '', rest: true,
-      sections: [
-        { name:'Light Stretching', exercises:[
-          {name:'Neck Rolls', detail:'5 each side'},
-          {name:'Chest Opener', detail:'30 sec x 3'},
-          {name:'Shoulder Stretch', detail:'30 sec each'},
-          {name:'Wall Angels', detail:'3 x 10'},
-          {name:'Cat Cow', detail:'10 reps'},
-          {name:"Child's Pose", detail:'1 min'},
-        ]},
-        { name:'Daily Core', exercises:[
-          {name:'Plank Hold', detail:'1 x 1 min'},
-          {name:'Side Plank Left', detail:'1 x 30 sec'},
-          {name:'Side Plank Right', detail:'1 x 30 sec'},
-          {name:'Bicycle Crunches', detail:'2 x 20'},
-          {name:'Reverse Crunches', detail:'2 x 15'},
-          {name:'Russian Twists', detail:'1 x 20'},
-          {name:'Hip Dips Left', detail:'1 x 15'},
-          {name:'Hip Dips Right', detail:'1 x 15'},
-        ]},
-        { name:'Optional Walk', exercises:[
-          {name:'Easy Walk for Complete Recovery', detail:'20–30 min'},
-        ]},
-      ]
-    },
-  };
   const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  // Weekly diet plan — 0=Sunday ... 6=Saturday (matches JS Date.getDay())
-  const WORKOUT_DAY_MEALS = [
-    { time:'4:00 AM', items:'2 glasses warm water + lemon', cal:0, protein:0 },
-    { time:'5:00 AM (Post Workout — most important!)', items:'1.5 scoop whey + 350ml buffalo milk', cal:305, protein:37 },
-    { time:'7:30 AM (Breakfast)', items:'3 egg omelette + 2 slices bread with butter + 1 banana', cal:490, protein:28 },
-    { time:'10:00 AM', items:'250ml buffalo milk + 1 banana', cal:270, protein:10 },
-    { time:'1:00 PM (Lunch)', items:'3 roti + dal/rajma + curd + salad', cal:580, protein:28 },
-    { time:'4:30 PM (Pre Workout)', items:'1 banana + black coffee + 2 boiled eggs', cal:220, protein:14 },
-    { time:'7:00 PM (Dinner)', items:'Paneer 200g + 2 roti + vegetables', cal:580, protein:36 },
-    { time:'8:30 PM (Before Sleep)', items:'200ml buffalo milk', cal:120, protein:8 },
-  ];
-  const REST_DAY_MEALS = [
-    { time:'4:00 AM', items:'2 glasses warm water + lemon', cal:0, protein:0 },
-    { time:'8:00 AM (Breakfast)', items:'4 egg omelette + 2 slices bread with butter + 1 banana', cal:490, protein:32 },
-    { time:'11:00 AM', items:'300ml buffalo milk', cal:180, protein:12 },
-    { time:'1:00 PM (Lunch)', items:'3 roti + dal/rajma + curd + salad', cal:580, protein:28 },
-    { time:'4:00 PM', items:'1 banana + black coffee', cal:100, protein:1 },
-    { time:'7:00 PM (Dinner)', items:'Paneer 200g + 2 roti + vegetables', cal:580, protein:36 },
-    { time:'9:00 PM (Before Sleep)', items:'300ml buffalo milk', cal:180, protein:12 },
-  ];
-  const WEEKLY_DIET = {
-    1: { label:'Workout Day', meals: WORKOUT_DAY_MEALS, note:null },           // Monday
-    2: { label:'Workout Day', meals: WORKOUT_DAY_MEALS, note:null },           // Tuesday
-    3: { label:'Cardio + Core Day', meals: WORKOUT_DAY_MEALS, note:null },     // Wednesday
-    4: { label:'Rest Day', meals: REST_DAY_MEALS, note:'No whey on rest day — food protein is enough!' }, // Thursday
-    5: { label:'Workout Day', meals: WORKOUT_DAY_MEALS, note:null },           // Friday
-    6: { label:'Workout Day', meals: WORKOUT_DAY_MEALS, note:null },           // Saturday
-    0: { label:'Rest Day', meals: REST_DAY_MEALS, note:'No whey on rest day — food protein is enough!' }, // Sunday
-  };
+  // ── Dynamic plan: reads from ATHLETE_PLAN (Supabase) or falls back to hardcoded ──
+  function getRoutineForDay(dow){
+    if(ATHLETE_PLAN && ATHLETE_PLAN.workout && ATHLETE_PLAN.workout[String(dow)]){
+      return ATHLETE_PLAN.workout[String(dow)];
+    }
+    if(ATHLETE_PLAN && ATHLETE_PLAN.workout && ATHLETE_PLAN.workout[dow]){
+      return ATHLETE_PLAN.workout[dow];
+    }
+    return {
+      title:'No Plan Assigned', duration:'—', calories:'', rest:false,
+      sections:[{name:'Contact your trainer', exercises:[{name:'Plan not loaded yet', detail:'Try logging out and back in'}]}]
+    };
+  }
+
+  function getDietForDay(dow){
+    if(ATHLETE_PLAN && ATHLETE_PLAN.diet){
+      const d = ATHLETE_PLAN.diet;
+      const isWorkoutDay = d.workout_days && d.workout_days.includes(dow);
+      return {
+        label: isWorkoutDay ? 'Workout Day' : 'Rest Day',
+        meals: isWorkoutDay ? (d.workout_meals||[]) : (d.rest_meals||[]),
+        note: isWorkoutDay ? null : (d.rest_note||null)
+      };
+    }
+    return { label:'No Plan', meals:[], note:'Log out and back in to load your plan' };
+  }
+
+  const WEEKLY_ROUTINE = new Proxy({}, { get(_,dow){ return getRoutineForDay(Number(dow)); } });
+  const WEEKLY_DIET    = new Proxy({}, { get(_,dow){ return getDietForDay(Number(dow)); } });
+
 
   function loadState(){
     try{
